@@ -32,6 +32,8 @@ cd people-detect-api
 python3.12 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+cp .env.example .env   # then put your Roboflow API key in .env
+set -a; source .env; set +a
 python run.py
 ```
 
@@ -41,18 +43,20 @@ The server starts on `http://localhost:8080` with auto-reload. Open `http://loca
 
 ```bash
 docker build -t people-detect-api .
-docker run -p 8080:8080 people-detect-api
+docker run --env-file .env -p 8080:8080 people-detect-api
 ```
+
+The container needs `ROBOFLOW_API_KEY`. Create `.env` from `.env.example` first.
 
 ## Configuration
 
-The service currently has no environment variables. The Roboflow endpoint, API key and model ID are set in `app/core/interface_client.py`, so replace the key there with your own before running.
+The service reads its secret from the environment and refuses to start if it is missing. Copy `.env.example` to `.env` (gitignored) and fill it in.
 
-| Setting | Location | Description |
+| Variable | Required | Description |
 | --- | --- | --- |
-| `api_url` | `app/core/interface_client.py` | Roboflow inference URL |
-| `api_key` | `app/core/interface_client.py` | Your Roboflow API key |
-| `MODEL_ID` | `app/core/interface_client.py` | Roboflow model, default `people-detection-o4rdr/11` |
+| `ROBOFLOW_API_KEY` | yes | Your Roboflow API key |
+
+The Roboflow URL (`https://serverless.roboflow.com`) and model ID (`people-detection-o4rdr/11`) are not secret and stay in `app/core/interface_client.py`.
 
 ## API endpoints
 
